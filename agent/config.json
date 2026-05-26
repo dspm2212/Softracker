@@ -1,0 +1,16 @@
+{
+  "sala_id": 1,
+  "machine_name": "SALA01-PC01",
+  "sala_token": "REPLACE_WITH_SALA_TOKEN",
+  "api_url": "http://servidor.universidad.edu:8080/v1/ingest",
+  "poll_interval": 5,
+  "send_interval": 1500,
+  "stagger_seconds": 30,
+  "timeout_seconds": 15,
+  "retries": 2,
+  "min_active_seconds": 5,
+  "buffer_dir": "",
+  "log_file": "",
+  "max_buffer_files": 200,
+  "log_locally": true
+}

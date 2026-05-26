@@ -1,0 +1,45 @@
+# =============================================================
+# monitoreo-api.service
+# systemd unit for the Softracker ingestion API.
+#
+# Installation:
+#   sudo cp systemd/monitoreo-api.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now monitoreo-api.service
+#
+# Verify:
+#   sudo systemctl status monitoreo-api
+#   curl http://localhost:8080/health
+#
+# Author: Daniel Santiago Perez Madera <dsperezm@udistrital.edu.co>
+# =============================================================
+
+[Unit]
+Description=Softracker ingestion API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=monitoreo
+Group=monitoreo
+WorkingDirectory=/opt/monitoreo_salas/api
+EnvironmentFile=/etc/monitoreo_salas/api.env
+
+ExecStart=/opt/monitoreo_salas/venv/bin/uvicorn api:app \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --workers 2 \
+    --access-log
+
+Restart=always
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
