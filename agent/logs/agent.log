@@ -1,0 +1,3 @@
+2026-05-26 10:52:45,231 [INFO] Softracker iniciado | Máquina: PC-Prueba-1 (PC-TEST-001)
+2026-05-26 10:52:45,231 [INFO] Poll: 5s | Envío: 60s
+2026-05-26 10:52:55,233 [INFO] [App] claude.exe                       10.0s  "Claude"

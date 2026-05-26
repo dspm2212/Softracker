@@ -1,0 +1,12 @@
+[
+  {
+    "machine_id": "PC-TEST-001",
+    "machine_name": "PC-Prueba-1",
+    "process_name": "claude.exe",
+    "exe_path": "C:\\Program Files\\WindowsApps\\Claude_1.8555.2.0_x64__pzs8sxrjxfjjc\\app\\claude.exe",
+    "window_title": "Claude",
+    "start_time": "2026-05-26T10:52:45.232023",
+    "end_time": "2026-05-26T10:52:55.233805",
+    "duration_seconds": 10.0
+  }
+]
