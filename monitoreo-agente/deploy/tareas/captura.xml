@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Task: MonitoreoCaptura
+  Runs agente_captura.py every 10 minutes while the estudiante session is active.
+
+  Key behaviors:
+    - Fires 5 minutes after login (delay avoids capturing Windows autostart noise).
+    - Repeats every 10 minutes indefinitely until the session ends.
+    - IgnoreNew: if a capture is still running when the next trigger fires, skip it.
+    - No console window (pythonw.exe).
+    - Execution time limit: 3 minutes (a capture takes < 5 seconds normally).
+
+  Placeholder: __INSTALL_USER__ is replaced by instalar.ps1 with DOMAIN\estudiante.
+  Install path:  C:\monitoreo  (set by instalar.ps1)
+-->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+
+  <RegistrationInfo>
+    <Author>Daniel Perez</Author>
+    <Description>Capture active applications every 10 min for the logged-in user.</Description>
+    <URI>\Monitoreo\Captura</URI>
+  </RegistrationInfo>
+
+  <Triggers>
+    <LogonTrigger>
+      <!--
+        Delay of 5 minutes after login so that Windows autostart apps
+        (OneDrive, Teams, antivirus updates, etc.) are not captured as
+        "student usage". The 10-minute repetition starts after this delay.
+      -->
+      <Delay>PT5M</Delay>
+      <Repetition>
+        <Interval>PT10M</Interval>
+        <!-- No Duration element = repeat indefinitely until session ends -->
+        <StopAtDurationEnd>false</StopAtDurationEnd>
+      </Repetition>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+  </Triggers>
+
+  <Principals>
+    <Principal id="Author">
+      <!--
+        Task only runs when estudiante is the interactive user.
+        instalar.ps1 replaces __INSTALL_USER__ with DOMAIN\estudiante.
+        If admin logs in, this task does NOT fire (InteractiveToken check).
+      -->
+      <UserId>__INSTALL_USER__</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+
+  <Settings>
+    <!-- Do not start a new instance if the previous one is still running -->
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <!-- Do not wake the machine just to capture -->
+    <WakeToRun>false</WakeToRun>
+    <!-- A missed trigger (PC off) is skipped; agente_retry handles orphan data -->
+    <StartWhenAvailable>false</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <!-- Kill the task if it runs longer than 3 minutes (should never happen) -->
+    <ExecutionTimeLimit>PT3M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+  </Settings>
+
+  <Actions Context="Author">
+    <Exec>
+      <!-- pythonw.exe: no console window pops up during captures -->
+      <Command>C:\monitoreo\.venv\Scripts\pythonw.exe</Command>
+      <Arguments>C:\monitoreo\scripts\agente_captura.py</Arguments>
+      <WorkingDirectory>C:\monitoreo</WorkingDirectory>
+    </Exec>
+  </Actions>
+
+</Task>

@@ -1,0 +1,22 @@
+# Virtual environment
+.venv/
+
+# Development data and logs (machine-specific)
+data/
+logs/
+
+# Site-specific config (copy from config.example.json)
+config.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# PyArrow / Parquet artifacts
+*.parquet
+*.snappy
+
+# Windows
+Thumbs.db
