@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Task: MonitoreoArranque
+  Runs agente_retry.py once at session start (login).
+
+  Key behaviors:
+    - Fires immediately on login (no delay): at startup we want to catch up
+      on missed sends from previous sessions as quickly as possible.
+    - No repetition: runs exactly once per login.
+    - Covers the case where the PC was off at 21:45 (agente_envio missed):
+        1. Finds orphan JSONLs in raw/ (no matching Parquet anywhere).
+        2. Consolidates each orphan → pendientes/.
+        3. Sends all pending Parquets to the API.
+    - IgnoreNew: prevents double-run if the user logs off and on quickly.
+    - No console window (pythonw.exe).
+    - ExecutionTimeLimit: 15 minutes — enough time to consolidate + upload
+      several days of backlogged data over a slow connection.
+
+  Placeholder: __INSTALL_USER__ is replaced by instalar.ps1 with DOMAIN\estudiante.
+  Install path:  C:\monitoreo  (set by instalar.ps1)
+-->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+
+  <RegistrationInfo>
+    <Author>Daniel Perez</Author>
+    <Description>Consolidate orphan data and retry pending uploads at session start.</Description>
+    <URI>\Monitoreo\Arranque</URI>
+  </RegistrationInfo>
+
+  <Triggers>
+    <LogonTrigger>
+      <!--
+        No Delay and no Repetition: runs once, as soon as the user logs in.
+        Catching up on missed sends should happen at the earliest opportunity.
+      -->
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+  </Triggers>
+
+  <Principals>
+    <Principal id="Author">
+      <!--
+        Task only runs when estudiante is the interactive user.
+        instalar.ps1 replaces __INSTALL_USER__ with DOMAIN\estudiante.
+        If admin logs in, this task does NOT fire (InteractiveToken check).
+      -->
+      <UserId>__INSTALL_USER__</UserId>
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+
+  <Settings>
+    <!-- Do not start a new instance if already running (fast re-login edge case) -->
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <!-- Do not wake the machine just for retry -->
+    <WakeToRun>false</WakeToRun>
+    <!--
+      StartWhenAvailable=false: if this trigger is somehow missed, skip it.
+      The same recovery will run on the next login.
+    -->
+    <StartWhenAvailable>false</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <!-- Kill the task if it runs longer than 15 minutes -->
+    <ExecutionTimeLimit>PT15M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <IdleSettings>
+      <StopOnIdleEnd>false</StopOnIdleEnd>
+      <RestartOnIdle>false</RestartOnIdle>
+    </IdleSettings>
+  </Settings>
+
+  <Actions Context="Author">
+    <Exec>
+      <!-- pythonw.exe: no console window during startup retry -->
+      <Command>C:\monitoreo\.venv\Scripts\pythonw.exe</Command>
+      <Arguments>C:\monitoreo\scripts\agente_retry.py</Arguments>
+      <WorkingDirectory>C:\monitoreo</WorkingDirectory>
+    </Exec>
+  </Actions>
+
+</Task>

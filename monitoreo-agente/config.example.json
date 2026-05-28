@@ -1,0 +1,12 @@
+{
+  "api_url": "http://servidor.universidad.edu:8080/v1/upload",
+  "token": "TOKEN-DE-SALA",
+  "sala_codigo": "SALA-01",
+  "datos_dir": "C:\\monitoreo\\datos",
+  "log_dir": "C:\\monitoreo\\logs",
+  "intervalo_captura_min": 10,
+  "hora_envio": "21:45",
+  "timeout_envio_seg": 60,
+  "reintentos_envio": 3,
+  "dias_retencion_local": 7
+}
