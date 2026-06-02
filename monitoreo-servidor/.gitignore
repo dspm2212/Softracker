@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Local dev data (never commit real data)
+data/
+logs/
+
+# Local dev credentials (never commit real tokens)
+tokens.yaml
+config.yaml

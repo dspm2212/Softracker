@@ -1,0 +1,35 @@
+[Unit]
+Description=Monitoreo Salas – REST API for receiving Parquet uploads
+Documentation=https://github.com/youruniversity/softracker
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=monitoreo
+Group=monitoreo
+WorkingDirectory=/opt/monitoreo-salas
+
+# Point to the production config; avoids relying on default path search
+Environment=MONITOREO_CONFIG=/etc/monitoreo-salas/config.yaml
+
+ExecStart=/opt/monitoreo-salas/.venv/bin/uvicorn \
+    app.main:app \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --workers 2 \
+    --log-level warning
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/monitoreo-salas /var/log/monitoreo-salas
+ReadOnlyPaths=/etc/monitoreo-salas /opt/monitoreo-salas
+
+[Install]
+WantedBy=multi-user.target

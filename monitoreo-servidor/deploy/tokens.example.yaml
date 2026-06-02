@@ -1,0 +1,11 @@
+rooms:
+  SALA-01:
+    active_hash: "SHA256_HASH_OF_SALA01_TOKEN"
+    active_since: "2026-01-15T10:00:00Z"
+    previous_hash: null
+    previous_until: null
+  SALA-02:
+    active_hash: "SHA256_HASH_OF_SALA02_TOKEN"
+    active_since: "2026-01-15T10:00:00Z"
+    previous_hash: null
+    previous_until: null
