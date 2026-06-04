@@ -1,0 +1,43 @@
+services:
+
+  servidor:
+    build:
+      context: ./monitoreo-servidor
+    image: monitoreo-servidor:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - MONITOREO_CONFIG=/config/servidor.yaml
+    volumes:
+      - ./config/servidor.yaml:/config/servidor.yaml:ro
+      - ./config/tokens.yaml:/config/tokens.yaml:ro
+      - monitoreo_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8080/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  report:
+    build:
+      context: ./monitoreo-report
+    image: monitoreo-report:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - MONITOREO_CONFIG=/config/report.yaml
+    volumes:
+      - ./config/report.yaml:/config/report.yaml:ro
+      - ./config/tokens.yaml:/config/tokens.yaml:ro
+      - monitoreo_data:/data:ro
+    depends_on:
+      servidor:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  monitoreo_data:
+    driver: local

@@ -36,7 +36,7 @@ def enviar_archivo(
     Args:
         archivo: Path to the Parquet file to upload.
         api_url: Full URL of the upload endpoint.
-        token: Shared room token sent as X-Auth-Token header.
+        token: Shared agent token sent as X-Auth-Token header.
         sala_codigo: Room code sent as a form field.
         timeout_seg: Per-attempt request timeout in seconds.
         reintentos: Number of retry attempts after the first try.

@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for monitoreo-servidor tests.
+"""Shared pytest fixtures for monitoreo-report tests.
 
 Author: Daniel Perez
 """
@@ -13,36 +13,25 @@ import pyarrow.parquet as pq
 import pytest
 from fastapi.testclient import TestClient
 
-from app.auth import hash_token
+from app.auth import hash_password
 
-# ── Credentials used across upload/status tests ──────────────────────────────
-TEST_SALA = "SALA-01"
-TEST_TOKEN = "test-shared-agent-token-abc123"
-TEST_ADMIN_TOKEN = "test-admin-token-xyz789"
+# ── Test credentials ──────────────────────────────────────────────────────────
+TEST_USERNAME = "admin"
+TEST_PASSWORD = "test-password-123"
+TEST_SALA     = "SALA-01"
 
 
-# ── Low-level config fixture (no HTTP client) ─────────────────────────────────
+# ── Config fixture ────────────────────────────────────────────────────────────
 
 @pytest.fixture
 def config_yaml(tmp_path: Path) -> Path:
-    """Write a minimal valid config.yaml and tokens.yaml to a temp directory."""
-    (tmp_path / "tokens.yaml").write_text(
-        f"""\
-shared_token:
-  active_hash: "{hash_token(TEST_TOKEN)}"
-  active_since: "2026-01-01T00:00:00Z"
-  previous_hash: null
-  previous_until: null
-""",
-        encoding="utf-8",
-    )
-
+    """Write a minimal valid config.yaml to a temp directory."""
     cfg = tmp_path / "config.yaml"
     cfg.write_text(
-        """\
+        f"""\
 server:
   host: "0.0.0.0"
-  port: 8080
+  port: 8081
   max_upload_mb: 50
 
 storage:
@@ -51,14 +40,13 @@ storage:
   audit_log_file: "log/ingest.log"
   reject_dir: "rejected"
 
-auth:
-  tokens_file: "tokens.yaml"
-  max_clock_skew_min: 30
-  admin_token_hash: "deadbeef00112233445566778899aabbccddeeff00112233445566778899aabb"
+credentials:
+  username: "{TEST_USERNAME}"
+  password_hash: "{hash_password(TEST_PASSWORD)}"
 
 logging:
   level: "INFO"
-  file: "./logs/api.log"
+  file: "./logs/report.log"
   rotate_mb: 50
   backups: 5
 """,
@@ -71,29 +59,14 @@ logging:
 
 @pytest.fixture
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    """TestClient wired to a fully configured in-memory app instance.
-
-    Uses max_upload_mb=1 so size-limit tests only need ~1 MB payloads.
-    """
-    tokens_file = tmp_path / "tokens.yaml"
-    tokens_file.write_text(
-        f"""\
-shared_token:
-  active_hash: "{hash_token(TEST_TOKEN)}"
-  active_since: "2026-01-01T00:00:00Z"
-  previous_hash: null
-  previous_until: null
-""",
-        encoding="utf-8",
-    )
-
+    """TestClient wired to a fully configured in-memory app instance."""
     config_file = tmp_path / "config.yaml"
     config_file.write_text(
         f"""\
 server:
   host: "0.0.0.0"
-  port: 8080
-  max_upload_mb: 1
+  port: 8081
+  max_upload_mb: 50
 
 storage:
   base_dir: "{(tmp_path / 'data').as_posix()}"
@@ -101,14 +74,13 @@ storage:
   audit_log_file: "log/ingest.log"
   reject_dir: "rejected"
 
-auth:
-  tokens_file: "{tokens_file.as_posix()}"
-  max_clock_skew_min: 30
-  admin_token_hash: "{hash_token(TEST_ADMIN_TOKEN)}"
+credentials:
+  username: "{TEST_USERNAME}"
+  password_hash: "{hash_password(TEST_PASSWORD)}"
 
 logging:
   level: "WARNING"
-  file: "{(tmp_path / 'logs' / 'api.log').as_posix()}"
+  file: "{(tmp_path / 'logs' / 'report.log').as_posix()}"
   rotate_mb: 5
   backups: 1
 """,

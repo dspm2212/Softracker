@@ -9,7 +9,7 @@ import time
 
 from fastapi import Header, HTTPException, Request
 
-from app.auth import RoomTokens, hash_token, load_tokens
+from app.auth import SharedToken, hash_token, load_tokens
 from app.config import AppConfig
 
 
@@ -18,8 +18,8 @@ def get_config(request: Request) -> AppConfig:
     return request.app.state.config
 
 
-def get_tokens(request: Request) -> dict[str, RoomTokens]:
-    """Load room tokens fresh from disk on every request.
+def get_tokens(request: Request) -> SharedToken:
+    """Load the shared agent token fresh from disk on every request.
 
     Reading fresh on each request ensures token rotations are picked up
     immediately without restarting the server.

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Entry point: consolidate orphan JSONLs and retry all pending sends.
 
 Designed to run at Windows session start (arranque.xml). Handles the case

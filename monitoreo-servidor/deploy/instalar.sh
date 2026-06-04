@@ -55,10 +55,16 @@ if [[ ! -f "$CONFIG_DIR/config.yaml" ]]; then
 fi
 
 if [[ ! -f "$CONFIG_DIR/tokens.yaml" ]]; then
-    echo "rooms: {}" > "$CONFIG_DIR/tokens.yaml"
-    log "Created empty $CONFIG_DIR/tokens.yaml."
-    log "  *** Generate tokens before starting: ***"
-    log "  *** $INSTALL_DIR/.venv/bin/python $INSTALL_DIR/scripts/generar_tokens.py --salas SALA-01 SALA-02 ***"
+    cat > "$CONFIG_DIR/tokens.yaml" <<'EOF'
+shared_token:
+  active_hash: "b7740b658766a108cd5a87694d11b556abb46b5f94c6784cf0121a12b0f96f11"
+  active_since: "2026-01-15T10:00:00Z"
+  previous_hash: null
+  previous_until: null
+EOF
+    log "Created $CONFIG_DIR/tokens.yaml with the package-wide shared token."
+    log "  *** For production, rotate it before starting: ***"
+    log "  *** $INSTALL_DIR/.venv/bin/python $INSTALL_DIR/scripts/generar_tokens.py --shared --tokens-file $CONFIG_DIR/tokens.yaml ***"
 fi
 
 # ── Permissions ───────────────────────────────────────────────────────────────
@@ -82,9 +88,9 @@ echo "============================================="
 echo ""
 echo "Next steps:"
 echo "  1. Edit $CONFIG_DIR/config.yaml"
-echo "  2. Generate room tokens:"
+echo "  2. Generate or rotate the shared agent token:"
 echo "       $INSTALL_DIR/.venv/bin/python $INSTALL_DIR/scripts/generar_tokens.py \\"
-echo "           --salas SALA-01 SALA-02  --tokens-file $CONFIG_DIR/tokens.yaml"
+echo "           --shared --tokens-file $CONFIG_DIR/tokens.yaml"
 echo "  3. Set admin_token_hash in config.yaml:"
 echo "       $INSTALL_DIR/.venv/bin/python $INSTALL_DIR/scripts/generar_tokens.py \\"
 echo "           --admin --config-file $CONFIG_DIR/config.yaml"
