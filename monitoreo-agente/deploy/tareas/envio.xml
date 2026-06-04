@@ -20,18 +20,18 @@
 
   <RegistrationInfo>
     <Author>Daniel Perez</Author>
-    <Description>Consolidate and upload today's session data at 21:45.</Description>
+    <Description>Consolidate and upload today's session data at 14:00.</Description>
     <URI>\Monitoreo\Envio</URI>
   </RegistrationInfo>
 
   <Triggers>
     <CalendarTrigger>
       <!--
-        Fire at 21:45 every day.
+        Fire at 14:00 every day.
         StartWhenAvailable=false means a missed trigger (PC was off) is skipped.
         agente_retry.exe handles orphaned data at next session start.
       -->
-      <StartBoundary>2000-01-01T21:45:00</StartBoundary>
+      <StartBoundary>2000-01-01T14:00:00</StartBoundary>
       <Enabled>true</Enabled>
       <ScheduleByDay>
         <DaysInterval>1</DaysInterval>

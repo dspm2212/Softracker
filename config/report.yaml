@@ -1,0 +1,24 @@
+server:
+  host: "0.0.0.0"
+  port: 8081
+  max_upload_mb: 50
+
+storage:
+  # Mismo volumen que el servidor, montado en modo lectura
+  base_dir: "/data"
+  parquet_subdir: "parquet"
+  audit_log_file: "log/ingest.log"
+  reject_dir: "rejected"
+
+credentials:
+  username: "admin"
+  # Hash SHA-256 de la contrasena del dashboard.
+  # Generar con:
+  #   python -c "import hashlib; print(hashlib.sha256(b'TU_CONTRASENA').hexdigest())"
+  password_hash: "5c5c438d92b6b33965720911595b56e9a190dd8a4fd2af45b10bae3d763a283d"
+
+logging:
+  level: "INFO"
+  file: "/data/log/report.log"
+  rotate_mb: 50
+  backups: 5
