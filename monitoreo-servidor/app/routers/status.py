@@ -1,4 +1,4 @@
-"""Admin status and room-listing endpoints.
+"""Admin status and shared-token status endpoints.
 
 Both endpoints require a valid X-Admin-Token header.
 
@@ -33,13 +33,18 @@ def get_status(
 
     Requires X-Admin-Token header.
     """
-    tokens = load_tokens(config.auth.tokens_file)
+    shared_token = load_tokens(config.auth.tokens_file)
     stats = storage_stats(config.storage.base_dir)
     last_24h = _last_24h_stats(config)
 
     return {
         "uptime_seconds": int(uptime),
-        "rooms_configured": len(tokens),
+        "auth_mode": "shared_token",
+        "token_active_since": shared_token.active_since.isoformat(),
+        "token_in_rotation": (
+            shared_token.previous_hash is not None
+            and shared_token.previous_until is not None
+        ),
         "storage": stats,
         "last_24h": last_24h,
     }
@@ -47,20 +52,21 @@ def get_status(
 
 @router.get("/v1/rooms")
 def get_rooms(config: AppConfig = Depends(get_config)) -> dict:
-    """List configured rooms without exposing token hashes.
+    """Return room configuration mode without exposing token hashes.
 
     Requires X-Admin-Token header.
     """
-    tokens = load_tokens(config.auth.tokens_file)
-    rooms = [
-        {
-            "code": code,
-            "active_since": rt.active_since.isoformat(),
-            "in_rotation": rt.previous_hash is not None and rt.previous_until is not None,
-        }
-        for code, rt in tokens.items()
-    ]
-    return {"rooms": rooms}
+    shared_token = load_tokens(config.auth.tokens_file)
+    return {
+        "auth_mode": "shared_token",
+        "rooms": [],
+        "rooms_configured": "dynamic",
+        "token_active_since": shared_token.active_since.isoformat(),
+        "token_in_rotation": (
+            shared_token.previous_hash is not None
+            and shared_token.previous_until is not None
+        ),
+    }
 
 
 def _last_24h_stats(config: AppConfig) -> dict:

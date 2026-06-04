@@ -1,4 +1,4 @@
-# Agente de Monitoreo de Aplicaciones — Windows
+﻿# Agente de Monitoreo de Aplicaciones — Windows
 
 [Español](#español) · [English](#english)
 
@@ -13,7 +13,7 @@
 Agente Python para Windows que monitorea qué aplicaciones utiliza el usuario logueado
 en equipos de salas de cómputo universitarias. Cada 10 minutos registra los procesos
 activos con ventana visible, los acumula localmente durante el día en formato JSONL y a
-las 21:45 consolida y envía un archivo Parquet al servidor de monitoreo vía HTTP.
+las 09:45 consolida y envía un archivo Parquet al servidor de monitoreo vía HTTP.
 
 Diseñado para **500 equipos distribuidos en 20 salas**. No requiere privilegios de
 administrador en tiempo de ejecución, no captura contraseñas ni contenido de pantalla, y
@@ -32,7 +32,7 @@ PC de sala (Windows 10/11)
        │   (cada 10 min)                             (append por línea)
        │
        ├── envio.xml     ──► agente_envio.py    ──► pendientes/FECHA_HOST.parquet
-       │   (21:45 diario)                        └──► enviados/YYYY/MM/   (si OK)
+       │   (09:45 diario)                        └──► enviados/YYYY/MM/   (si OK)
        │                                         └──► pendientes/          (si falla)
        │
        └── arranque.xml  ──► agente_retry.py   ──► consolida JSONLs huérfanos
@@ -77,7 +77,7 @@ Softracker/
     │   ├── instalar.ps1              Instalador (requiere admin)
     │   └── tareas/
     │       ├── captura.xml           Tarea: captura cada 10 min
-    │       ├── envio.xml             Tarea: envío diario 21:45
+    │       ├── envio.xml             Tarea: envío diario 09:45
     │       └── arranque.xml          Tarea: retry al iniciar sesión
     ├── config.example.json           Plantilla de configuración
     ├── requirements.txt
@@ -200,7 +200,7 @@ Llevar un registro como este (almacenar de forma segura, nunca en el repositorio
   "datos_dir":             "C:/monitoreo/data",
   "log_dir":               "C:/monitoreo/logs",
   "intervalo_captura_min": 10,
-  "hora_envio":            "21:45",
+  "hora_envio":            "09:45",
   "timeout_envio_seg":     60,
   "reintentos_envio":      3,
   "dias_retencion_local":  7
@@ -215,7 +215,7 @@ Llevar un registro como este (almacenar de forma segura, nunca en el repositorio
 | `datos_dir` | ✅ | Directorio raíz para `raw/`, `pendientes/`, `enviados/` |
 | `log_dir` | — | Directorio de logs. Default: `C:\monitoreo\logs` |
 | `intervalo_captura_min` | — | Minutos entre capturas. Default: `10` |
-| `hora_envio` | — | Hora del envío diario. Default: `"21:45"` |
+| `hora_envio` | — | Hora del envío diario. Default: `"09:45"` |
 | `timeout_envio_seg` | — | Timeout HTTP por intento. Default: `60` |
 | `reintentos_envio` | — | Reintentos con backoff exponencial. Default: `3` |
 | `dias_retencion_local` | — | Días antes de borrar archivos locales. Default: `7` |
@@ -248,7 +248,7 @@ Ciclo diario en un equipo:
            │
            │     raw/2026-05-27.jsonl va creciendo durante el día
            │
-  21:45  [Tarea de envío]
+  09:45  [Tarea de envío]
            │
            └── envio.xml dispara agente_envio.py
                  • Consolida raw/2026-05-27.jsonl → pendientes/2026-05-27_PC-01.parquet
@@ -425,7 +425,7 @@ foreach ($pc in $equipos) {
 | Tarea | Trigger | Script | Propósito |
 |-------|---------|--------|-----------|
 | `\Monitoreo\Captura` | Al iniciar sesión + 5 min de retraso, repite cada 10 min | `agente_captura.py` | Captura aplicaciones activas |
-| `\Monitoreo\Envio` | Diariamente a las 21:45 | `agente_envio.py` | Consolida y envía el día |
+| `\Monitoreo\Envio` | Diariamente a las 09:45 | `agente_envio.py` | Consolida y envía el día |
 | `\Monitoreo\Arranque` | Al iniciar sesión (sin retraso, sin repetición) | `agente_retry.py` | Envía datos pendientes de sesiones anteriores |
 
 **Notas importantes:**
@@ -433,7 +433,7 @@ foreach ($pc in $equipos) {
   inicia sesión, **ninguna tarea se dispara** — por diseño.
 - `captura.xml` tiene un retraso de 5 minutos para que OneDrive, Teams y el antivirus
   terminen su arranque antes de que se capture, evitando ruido en los datos.
-- Si el equipo estaba apagado a las 21:45 (`envio.xml` no se ejecutó), `arranque.xml`
+- Si el equipo estaba apagado a las 09:45 (`envio.xml` no se ejecutó), `arranque.xml`
   consolida los datos huérfanos y los envía la próxima vez que `estudiante` inicia sesión.
 - `StartWhenAvailable=false` en `envio.xml` y `arranque.xml`: un trigger perdido no
   se re-ejecuta automáticamente — el retry lo maneja `arranque.xml`.
@@ -444,9 +444,9 @@ foreach ($pc in $equipos) {
 
 | Escenario | Qué ocurre |
 |-----------|------------|
-| Equipo apagado a las 21:45 | JSONL queda en `raw/`. Al próximo login `arranque.xml` consolida y envía. |
-| Servidor caído a las 21:45 | Parquet queda en `pendientes/`. Próximo login reintenta. |
-| Sin sesión a las 21:45 | La tarea no se ejecuta (sin sesión interactiva). Próximo login resuelve. |
+| Equipo apagado a las 09:45 | JSONL queda en `raw/`. Al próximo login `arranque.xml` consolida y envía. |
+| Servidor caído a las 09:45 | Parquet queda en `pendientes/`. Próximo login reintenta. |
+| Sin sesión a las 09:45 | La tarea no se ejecuta (sin sesión interactiva). Próximo login resuelve. |
 | Múltiples días sin enviar | Todos los JSONLs huérfanos se consolidan y envían en orden al próximo login. |
 | Captura sin apps (equipo ocioso) | Se registra una muestra con `apps: []` → una fila null en el Parquet para preservar la marca temporal. |
 | Corte de luz durante escritura | Solo se pierde la línea JSONL en curso; las anteriores ya estaban en disco (`flush()` por línea). |
@@ -608,7 +608,7 @@ Get-Content "C:\monitoreo\logs\envio.log" -Tail 30
 A Python agent for Windows that monitors which applications are being used by the
 logged-in user on university computer lab machines. Every 10 minutes it records
 active processes with visible windows, accumulates them locally during the day in
-JSONL format, and at 21:45 consolidates and sends a Parquet file to the monitoring
+JSONL format, and at 09:45 consolidates and sends a Parquet file to the monitoring
 server via HTTP.
 
 Designed for **500 machines across 20 rooms**. Requires no admin privileges at
@@ -628,7 +628,7 @@ Lab PC (Windows 10/11)
        │   (every 10 min)                            (line-by-line append)
        │
        ├── envio.xml     ──► agente_envio.py    ──► pendientes/DATE_HOST.parquet
-       │   (daily 21:45)                         └──► enviados/YYYY/MM/  (on success)
+       │   (daily 09:45)                         └──► enviados/YYYY/MM/  (on success)
        │                                         └──► pendientes/         (on failure)
        │
        └── arranque.xml  ──► agente_retry.py   ──► consolidates orphan JSONLs
@@ -672,7 +672,7 @@ Softracker/
     │   ├── instalar.ps1              Installer (requires admin)
     │   └── tareas/
     │       ├── captura.xml           Task: capture every 10 min
-    │       ├── envio.xml             Task: daily send at 21:45
+    │       ├── envio.xml             Task: daily send at 09:45
     │       └── arranque.xml          Task: retry at login
     ├── config.example.json           Configuration template
     ├── requirements.txt
@@ -797,7 +797,7 @@ Only the affected room needs to be updated — other rooms are unaffected.
   "datos_dir":             "C:/monitoreo/data",
   "log_dir":               "C:/monitoreo/logs",
   "intervalo_captura_min": 10,
-  "hora_envio":            "21:45",
+  "hora_envio":            "09:45",
   "timeout_envio_seg":     60,
   "reintentos_envio":      3,
   "dias_retencion_local":  7
@@ -812,7 +812,7 @@ Only the affected room needs to be updated — other rooms are unaffected.
 | `datos_dir` | ✅ | Root directory for `raw/`, `pendientes/`, `enviados/` |
 | `log_dir` | — | Log directory. Default: `C:\monitoreo\logs` |
 | `intervalo_captura_min` | — | Minutes between captures. Default: `10` |
-| `hora_envio` | — | Daily send time. Default: `"21:45"` |
+| `hora_envio` | — | Daily send time. Default: `"09:45"` |
 | `timeout_envio_seg` | — | HTTP timeout per attempt in seconds. Default: `60` |
 | `reintentos_envio` | — | Retry attempts with exponential backoff. Default: `3` |
 | `dias_retencion_local` | — | Days before deleting local files. Default: `7` |
@@ -845,7 +845,7 @@ Daily cycle on one machine:
            │
            │     raw/2026-05-27.jsonl grows throughout the day
            │
-  21:45  [Send task]
+  09:45  [Send task]
            │
            └── envio.xml fires agente_envio.py
                  • Consolidates raw/2026-05-27.jsonl
@@ -1021,7 +1021,7 @@ foreach ($pc in $machines) {
 | Task | Trigger | Script | Purpose |
 |------|---------|--------|---------|
 | `\Monitoreo\Captura` | At login + 5 min delay, repeats every 10 min | `agente_captura.py` | Capture active applications |
-| `\Monitoreo\Envio` | Daily at 21:45 | `agente_envio.py` | Consolidate and send the day's data |
+| `\Monitoreo\Envio` | Daily at 09:45 | `agente_envio.py` | Consolidate and send the day's data |
 | `\Monitoreo\Arranque` | At login (no delay, no repeat) | `agente_retry.py` | Send pending data from previous sessions |
 
 **Important notes:**
@@ -1029,7 +1029,7 @@ foreach ($pc in $machines) {
   administrator logs in, **no task fires** — by design.
 - `captura.xml` has a 5-minute startup delay so OneDrive, Teams, and antivirus
   finish their autostart sequence before the first capture, avoiding noise in data.
-- If the machine was off at 21:45 (`envio.xml` missed), `arranque.xml` consolidates
+- If the machine was off at 09:45 (`envio.xml` missed), `arranque.xml` consolidates
   orphan data and sends it on the next `estudiante` login.
 - `StartWhenAvailable=false` in `envio.xml` and `arranque.xml`: a missed trigger is
   not automatically re-run — `arranque.xml` handles recovery.
@@ -1040,9 +1040,9 @@ foreach ($pc in $machines) {
 
 | Scenario | What happens |
 |----------|-------------|
-| Machine off at 21:45 | JSONL stays in `raw/`. On next login `arranque.xml` consolidates and sends. |
-| Server down at 21:45 | Parquet stays in `pendientes/`. Next login retries. |
-| No session at 21:45 | Task doesn't fire (no interactive session). Next login resolves it. |
+| Machine off at 09:45 | JSONL stays in `raw/`. On next login `arranque.xml` consolidates and sends. |
+| Server down at 09:45 | Parquet stays in `pendientes/`. Next login retries. |
+| No session at 09:45 | Task doesn't fire (no interactive session). Next login resolves it. |
 | Multiple days without sending | All orphan JSONLs are consolidated and sent in order on next login. |
 | Capture with no apps (idle machine) | A snapshot with `apps: []` is recorded → one null-field row in Parquet to preserve the timestamp. |
 | Power cut during JSONL write | Only the in-progress line is lost; prior lines are already on disk (`flush()` per line). |

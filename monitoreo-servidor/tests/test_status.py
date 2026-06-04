@@ -5,14 +5,12 @@ Author: Daniel Perez
 
 from fastapi.testclient import TestClient
 
-from tests.conftest import TEST_ADMIN_TOKEN, TEST_SALA
+from tests.conftest import TEST_ADMIN_TOKEN
 
 
 def _admin_headers():
     return {"X-Admin-Token": TEST_ADMIN_TOKEN}
 
-
-# ── /v1/status ────────────────────────────────────────────────────────────────
 
 def test_status_requires_admin_token(client: TestClient) -> None:
     assert client.get("/v1/status").status_code == 401
@@ -29,7 +27,9 @@ def test_status_with_valid_token_returns_200(client: TestClient) -> None:
 def test_status_response_schema(client: TestClient) -> None:
     data = client.get("/v1/status", headers=_admin_headers()).json()
     assert "uptime_seconds" in data
-    assert "rooms_configured" in data
+    assert data["auth_mode"] == "shared_token"
+    assert "token_active_since" in data
+    assert "token_in_rotation" in data
     assert "storage" in data
     assert "last_24h" in data
 
@@ -48,12 +48,10 @@ def test_status_last_24h_keys(client: TestClient) -> None:
     assert "uploads_by_room" in last
 
 
-def test_status_rooms_configured_count(client: TestClient) -> None:
+def test_status_shared_token_mode(client: TestClient) -> None:
     data = client.get("/v1/status", headers=_admin_headers()).json()
-    assert data["rooms_configured"] == 1  # only SALA-01 in test tokens
+    assert data["auth_mode"] == "shared_token"
 
-
-# ── /v1/rooms ─────────────────────────────────────────────────────────────────
 
 def test_rooms_requires_admin_token(client: TestClient) -> None:
     assert client.get("/v1/rooms").status_code == 401
@@ -65,17 +63,17 @@ def test_rooms_with_valid_token_returns_200(client: TestClient) -> None:
 
 def test_rooms_response_schema(client: TestClient) -> None:
     data = client.get("/v1/rooms", headers=_admin_headers()).json()
+    assert data["auth_mode"] == "shared_token"
     assert "rooms" in data
     assert isinstance(data["rooms"], list)
+    assert data["rooms_configured"] == "dynamic"
 
 
-def test_rooms_lists_configured_sala(client: TestClient) -> None:
+def test_rooms_are_dynamic_not_preconfigured(client: TestClient) -> None:
     rooms = client.get("/v1/rooms", headers=_admin_headers()).json()["rooms"]
-    codes = [r["code"] for r in rooms]
-    assert TEST_SALA in codes
+    assert rooms == []
 
 
 def test_rooms_does_not_expose_hashes(client: TestClient) -> None:
-    rooms = client.get("/v1/rooms", headers=_admin_headers()).json()["rooms"]
-    for room in rooms:
-        assert "hash" not in str(room).lower() or "active_hash" not in room
+    data = client.get("/v1/rooms", headers=_admin_headers()).json()
+    assert "hash" not in str(data).lower()

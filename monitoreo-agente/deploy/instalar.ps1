@@ -4,52 +4,56 @@
     Installs the monitoring agent to C:\monitoreo on a target PC.
 
 .DESCRIPTION
-    1. Verifies the estudiante account exists.
-    2. Creates the folder structure under InstallDir.
-    3. Copies entry-point scripts, and requirements.txt.
-    4. Creates a Python virtualenv and installs all dependencies.
-    5. Writes config.json (UTF-8 without BOM so Python can parse it).
-    6. Imports the three Task Scheduler tasks under the estudiante account,
-       replacing the __INSTALL_USER__ placeholder with the resolved account.
+    1. Creates the folder structure under InstallDir.
+    2. Copies the three self-contained executables from bin\.
+    3. Writes config.json (UTF-8 without BOM).
+    4. Imports the three Task Scheduler tasks under the student account,
+       replacing __INSTALL_USER__ with the resolved DOMAIN\account.
+
+    No Python, no virtualenv, no internet connection required on the target PC.
+    The executables (agente_captura.exe, agente_envio.exe, agente_retry.exe)
+    must be present in bin\ next to this script before running.
 
 .PARAMETER InstallDir
     Destination directory. Default: C:\monitoreo
 
 .PARAMETER StudentUser
-    SAM account name of the monitored user. Default: estudiante
+    SAM account name of the monitored user. Defaults to the current user.
 
-.PARAMETER SalaCode***
-    Room code stored in config.json (e.g. SALA-01). Prompted if omitted.
+.PARAMETER SalaCode
+    Room identifier stored in config.json (e.g. SALA-01). Prompted if omitted.
 
 .PARAMETER ApiUrl
     Full upload endpoint URL. Prompted if omitted.
 
 .PARAMETER Token
-    Shared auth token. Prompted if omitted.
+    Shared auth token for the university. Change from the default before deploying.
 
 .NOTES
     Author: Daniel Perez
     Run from an elevated PowerShell prompt on each target PC.
-    Source files are resolved relative to this script's location.
+    Source files must be in the same folder as this script (bin\, tareas\).
 #>
 
 param(
     [string]$InstallDir  = "C:\monitoreo",
-    [string]$StudentUser = "estudiante",
+    [string]$StudentUser = "",
     [string]$SalaCode    = "",
     [string]$ApiUrl      = "",
-    [string]$Token       = ""
+    [string]$Token       = "MONITOREO_SHARED_TOKEN_CHANGE_ME"
 )
+
+if (-not $StudentUser) { $StudentUser = $env:USERNAME }
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-
 
 function Write-Step { param([string]$Msg) Write-Host "`n[INSTALAR] $Msg" -ForegroundColor Cyan }
 function Write-Ok   { param([string]$Msg) Write-Host "    OK  $Msg"     -ForegroundColor Green }
 function Write-Fail { param([string]$Msg) Write-Host "  FAIL  $Msg"     -ForegroundColor Red; exit 1 }
 
 
+# ── Resolve student account ────────────────────────────────────────────────────
 Write-Step "Resolving student account '$StudentUser'"
 
 $domain = $env:USERDOMAIN
@@ -61,10 +65,12 @@ try {
         [System.Security.Principal.SecurityIdentifier])
     Write-Ok "Account found: $installUser (SID $sid)"
 } catch {
-    Write-Fail "Account '$installUser' not found. Provide -StudentUser with the correct SAM name and retry."
+    Write-Host "  WARN  Account '$installUser' not found locally - continuing." -ForegroundColor Yellow
+    Write-Host "        Tasks will be registered but may not run until the account exists." -ForegroundColor Yellow
 }
 
 
+# ── Prompt for required parameters ────────────────────────────────────────────
 if (-not $SalaCode) {
     $SalaCode = Read-Host "Enter sala_codigo (e.g. SALA-01)"
     if (-not $SalaCode) { Write-Fail "sala_codigo is required." }
@@ -73,17 +79,25 @@ if (-not $ApiUrl) {
     $ApiUrl = Read-Host "Enter API URL (e.g. http://192.168.1.100:8080/v1/upload)"
     if (-not $ApiUrl) { Write-Fail "api_url is required." }
 }
-if (-not $Token) {
-    $Token = Read-Host "Enter auth token"
-    if (-not $Token) { Write-Fail "token is required." }
+
+
+# ── Verify source executables ──────────────────────────────────────────────────
+Write-Step "Verifying agent executables in bin\"
+
+$BinDir  = Join-Path $PSScriptRoot "bin"
+$RequiredExes = @("agente_captura.exe", "agente_envio.exe", "agente_retry.exe")
+foreach ($exe in $RequiredExes) {
+    if (-not (Test-Path (Join-Path $BinDir $exe))) {
+        Write-Fail "Missing $exe in $BinDir. Build with deploy\construir.ps1 first."
+    }
+    Write-Ok $exe
 }
 
 
+# ── Create folder structure ────────────────────────────────────────────────────
 Write-Step "Creating folder structure under $InstallDir"
 
 $folders = @(
-    "$InstallDir\agente",
-    "$InstallDir\scripts",
     "$InstallDir\data\raw",
     "$InstallDir\data\pendientes",
     "$InstallDir\data\enviados",
@@ -95,45 +109,16 @@ foreach ($folder in $folders) {
 }
 
 
-Write-Step "Copying source files"
+# ── Copy executables ───────────────────────────────────────────────────────────
+Write-Step "Copying agent executables to $InstallDir"
 
-# $PSScriptRoot is deploy\, parent is monitoreo-agente\
-$sourceRoot = Split-Path $PSScriptRoot -Parent
-
-if (-not (Test-Path "$sourceRoot\agente")) {
-    Write-Fail "Source not found at '$sourceRoot'. Run instalar.ps1 from the deploy\ folder."
+foreach ($exe in $RequiredExes) {
+    Copy-Item (Join-Path $BinDir $exe) "$InstallDir\$exe" -Force
+    Write-Ok "$InstallDir\$exe"
 }
 
-Copy-Item -Path "$sourceRoot\agente\*"    -Destination "$InstallDir\agente\"   -Recurse -Force
-Write-Ok "agente package"
 
-Copy-Item -Path "$sourceRoot\scripts\*.py" -Destination "$InstallDir\scripts\" -Force
-Write-Ok "entry-point scripts"
-
-Copy-Item -Path "$sourceRoot\requirements.txt" -Destination "$InstallDir\" -Force
-Write-Ok "requirements.txt"
-
-
-Write-Step "Locating Python 3 interpreter"
-try {
-    $pythonExe = (Get-Command python.exe -ErrorAction Stop).Source
-    $pyVersion = & $pythonExe --version 2>&1
-    Write-Ok "$pythonExe  ($pyVersion)"
-} catch {
-    Write-Fail "python.exe not found in PATH. Install Python 3.13+ and add it to the system PATH."
-}
-
-Write-Step "Creating virtualenv at $InstallDir\.venv"
-& $pythonExe -m venv "$InstallDir\.venv"
-if ($LASTEXITCODE -ne 0) { Write-Fail "venv creation failed." }
-Write-Ok ".venv created"
-
-Write-Step "Installing Python dependencies"
-& "$InstallDir\.venv\Scripts\pip.exe" install --quiet -r "$InstallDir\requirements.txt"
-if ($LASTEXITCODE -ne 0) { Write-Fail "pip install failed." }
-Write-Ok "dependencies installed"
-
-
+# ── Write config.json ──────────────────────────────────────────────────────────
 Write-Step "Writing $InstallDir\config.json"
 
 $configObj = @{
@@ -150,18 +135,18 @@ $configObj = @{
 }
 $jsonContent = $configObj | ConvertTo-Json -Depth 3
 
-# PowerShell 5.1's Out-File -Encoding utf8 adds a BOM that breaks Python's
-# json.load. Use the .NET API directly to write UTF-8 without BOM.
+# PowerShell 5.1 Out-File adds a BOM that breaks Python's json.load.
+# Use .NET directly to write UTF-8 without BOM.
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText("$InstallDir\config.json", $jsonContent, $utf8NoBom)
 
 Write-Ok "$InstallDir\config.json"
 
 
-
+# ── Register Task Scheduler tasks ─────────────────────────────────────────────
 Write-Step "Importing Task Scheduler tasks for $installUser"
 
-$tasksDir = "$PSScriptRoot\tareas"
+$tasksDir = Join-Path $PSScriptRoot "tareas"
 $tasks = @(
     @{ Xml = "captura.xml";  Name = "\Monitoreo\Captura"  },
     @{ Xml = "envio.xml";    Name = "\Monitoreo\Envio"    },
@@ -169,44 +154,52 @@ $tasks = @(
 )
 
 foreach ($task in $tasks) {
-    $xmlPath = "$tasksDir\$($task.Xml)"
+    $xmlPath = Join-Path $tasksDir $task.Xml
     if (-not (Test-Path $xmlPath)) {
         Write-Fail "Missing task XML: $xmlPath"
     }
 
-    # Replace placeholder with the resolved account
+    # Replace placeholder and switch encoding to UTF-16 (schtasks requirement)
     $xmlContent = [System.IO.File]::ReadAllText($xmlPath, [System.Text.Encoding]::UTF8)
-    $xmlContent  = $xmlContent -replace "__INSTALL_USER__", $installUser
-    $tmpXml      = "$env:TEMP\monitoreo_$($task.Xml)"
-    $utf8NoBom   = New-Object System.Text.UTF8Encoding $false
-    [System.IO.File]::WriteAllText($tmpXml, $xmlContent, $utf8NoBom)
+    $xmlContent = $xmlContent -replace "__INSTALL_USER__", $installUser
+    $xmlContent = $xmlContent -replace "__INSTALL_DIR__",  $InstallDir
+    $xmlContent = $xmlContent -replace 'encoding="UTF-8"', 'encoding="UTF-16"'
+
+    $tmpXml = "$env:TEMP\monitoreo_$($task.Xml)"
+    [System.IO.File]::WriteAllText($tmpXml, $xmlContent, [System.Text.Encoding]::Unicode)
 
     # Delete existing task silently (ignore failure if it doesn't exist yet)
-    $null = schtasks /Delete /TN $task.Name /F 2>&1
+    $deleteBase = Join-Path $env:TEMP ("monitoreo_del_" + [guid]::NewGuid().ToString("N"))
+    Start-Process -FilePath "$env:SystemRoot\System32\schtasks.exe" `
+        -ArgumentList @("/Delete", "/TN", $task.Name, "/F") `
+        -Wait -PassThru -WindowStyle Hidden `
+        -RedirectStandardOutput "$deleteBase.out" `
+        -RedirectStandardError  "$deleteBase.err" | Out-Null
+    Remove-Item "$deleteBase.out", "$deleteBase.err" -Force -ErrorAction SilentlyContinue
 
-    # Import fresh
+    # Import fresh task
     schtasks /Create /XML $tmpXml /TN $task.Name /F | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Remove-Item $tmpXml -Force -ErrorAction SilentlyContinue
         Write-Fail "schtasks /Create failed for $($task.Name). Check permissions."
     }
     Remove-Item $tmpXml -Force
-    Write-Ok "$($task.Name)"
+    Write-Ok $task.Name
 }
 
 
-
+# ── Done ───────────────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor Green
 Write-Host "  Installation complete." -ForegroundColor Green
 Write-Host ""
-Write-Host "  Install dir  : $InstallDir" -ForegroundColor Green
+Write-Host "  Install dir  : $InstallDir"  -ForegroundColor Green
 Write-Host "  Student user : $installUser" -ForegroundColor Green
-Write-Host "  Sala         : $SalaCode" -ForegroundColor Green
-Write-Host "  API URL      : $ApiUrl" -ForegroundColor Green
+Write-Host "  Sala         : $SalaCode"    -ForegroundColor Green
+Write-Host "  API URL      : $ApiUrl"      -ForegroundColor Green
 Write-Host ""
 Write-Host "  Scheduled tasks registered:" -ForegroundColor Green
-Write-Host "    \Monitoreo\Captura   — every 10 min while estudiante is logged in" -ForegroundColor Green
-Write-Host "    \Monitoreo\Envio     — daily at 14:00" -ForegroundColor Green
-Write-Host "    \Monitoreo\Arranque  — once at login (orphan retry)" -ForegroundColor Green
+Write-Host "    \Monitoreo\Captura   - every 10 min while student is logged in" -ForegroundColor Green
+Write-Host "    \Monitoreo\Envio     - daily at 21:45" -ForegroundColor Green
+Write-Host "    \Monitoreo\Arranque  - once at login (retry orphan data)" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green

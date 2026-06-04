@@ -1,4 +1,4 @@
-"""
+﻿"""
 Entry point: consolidate today's captures and send all pending files.
 
 Workflow:

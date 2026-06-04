@@ -13,7 +13,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, Header, HTTPException, Request, UploadFile
 
 from app.audit import log_event
-from app.auth import RoomTokens, load_tokens, validate_token
+from app.auth import SharedToken, load_tokens, validate_token
 from app.config import AppConfig
 from app.dependencies import get_config
 from app.storage import save_parquet, save_rejected
@@ -40,8 +40,8 @@ async def upload_parquet(
     avoid loading large payloads for unauthorized requests):
     1. X-Auth-Token header present.
     2. sala_codigo format valid.
-    3. Room exists in token store.
-    4. Token matches room (active or previous grace-window token).
+    3. Shared token config is loaded.
+    4. Token matches the shared token (active or previous grace-window token).
     5. File size within limit.
     6. File is valid Parquet.
     7. Save and return 201.
@@ -61,15 +61,15 @@ async def upload_parquet(
         _audit(audit_file, client_ip, sala_codigo, "invalid_room_code", 0, None, None, start)
         raise HTTPException(status_code=400, detail="invalid room code")
 
-    # 3 & 4. Load tokens and validate (token check before reading file bytes)
+    # 3 & 4. Load shared token and validate (before reading file bytes)
     try:
-        tokens: dict[str, RoomTokens] = load_tokens(config.auth.tokens_file)
+        shared_token: SharedToken = load_tokens(config.auth.tokens_file)
     except Exception as exc:
         logger.error("Failed to load tokens file: %s", exc)
         _audit(audit_file, client_ip, sala_codigo, "error", 0, None, str(exc), start)
         raise HTTPException(status_code=500, detail="internal error") from exc
 
-    match_type = validate_token(x_auth_token, sala_codigo, tokens)
+    match_type = validate_token(x_auth_token, shared_token)
     if match_type is None:
         _audit(audit_file, client_ip, sala_codigo, "invalid_token", 0, None, None, start)
         raise HTTPException(status_code=401, detail="invalid token")

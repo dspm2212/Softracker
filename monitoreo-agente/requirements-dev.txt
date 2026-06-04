@@ -1,0 +1,3 @@
+# Build tooling — not installed on target machines.
+pyinstaller>=6.0.0
+pyinstaller-hooks-contrib>=2024.0

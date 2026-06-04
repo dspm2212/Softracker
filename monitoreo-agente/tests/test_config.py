@@ -28,7 +28,6 @@ def minimal_config(tmp_path: Path) -> Path:
         tmp_path / "config.json",
         {
             "api_url": "http://test.server/v1/upload",
-            "token": "TEST-TOKEN",
             "sala_codigo": "SALA-TEST",
             "datos_dir": str(tmp_path / "datos"),
         },
@@ -40,7 +39,7 @@ def minimal_config(tmp_path: Path) -> Path:
 def test_load_returns_required_values(minimal_config: Path) -> None:
     cfg = cargar_config(minimal_config)
     assert cfg["api_url"] == "http://test.server/v1/upload"
-    assert cfg["token"] == "TEST-TOKEN"
+    assert cfg["token"] == DEFAULTS["token"]
     assert cfg["sala_codigo"] == "SALA-TEST"
 
 
@@ -73,7 +72,7 @@ def test_all_required_keys_present_in_result(minimal_config: Path) -> None:
 # ── error cases ───────────────────────────────────────────────────────────────
 
 def test_missing_single_required_key_raises(tmp_path: Path) -> None:
-    data = {"api_url": "http://x.com", "token": "T", "sala_codigo": "S"}
+    data = {"api_url": "http://x.com", "sala_codigo": "S"}
     # datos_dir is missing
     with pytest.raises(ValueError, match="datos_dir"):
         cargar_config(_write_config(tmp_path / "config.json", data))

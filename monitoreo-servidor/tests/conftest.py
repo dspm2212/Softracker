@@ -17,7 +17,7 @@ from app.auth import hash_token
 
 # ── Credentials used across upload/status tests ──────────────────────────────
 TEST_SALA = "SALA-01"
-TEST_TOKEN = "test-token-sala-01-abc123"
+TEST_TOKEN = "test-shared-agent-token-abc123"
 TEST_ADMIN_TOKEN = "test-admin-token-xyz789"
 
 
@@ -26,7 +26,16 @@ TEST_ADMIN_TOKEN = "test-admin-token-xyz789"
 @pytest.fixture
 def config_yaml(tmp_path: Path) -> Path:
     """Write a minimal valid config.yaml and tokens.yaml to a temp directory."""
-    (tmp_path / "tokens.yaml").write_text("rooms: {}\n", encoding="utf-8")
+    (tmp_path / "tokens.yaml").write_text(
+        f"""\
+shared_token:
+  active_hash: "{hash_token(TEST_TOKEN)}"
+  active_since: "2026-01-01T00:00:00Z"
+  previous_hash: null
+  previous_until: null
+""",
+        encoding="utf-8",
+    )
 
     cfg = tmp_path / "config.yaml"
     cfg.write_text(
@@ -69,12 +78,11 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
     tokens_file = tmp_path / "tokens.yaml"
     tokens_file.write_text(
         f"""\
-rooms:
-  {TEST_SALA}:
-    active_hash: "{hash_token(TEST_TOKEN)}"
-    active_since: "2026-01-01T00:00:00Z"
-    previous_hash: null
-    previous_until: null
+shared_token:
+  active_hash: "{hash_token(TEST_TOKEN)}"
+  active_since: "2026-01-01T00:00:00Z"
+  previous_hash: null
+  previous_until: null
 """,
         encoding="utf-8",
     )

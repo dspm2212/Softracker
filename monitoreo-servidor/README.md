@@ -18,8 +18,8 @@ python -m venv .venv
 
 pip install -r requirements.txt
 
-# Generate your development tokens (printed once — save them)
-python scripts/generar_tokens.py --salas SALA-01 SALA-02
+# Generate your shared development token (printed once — save it)
+python scripts/generar_tokens.py --shared
 python scripts/generar_tokens.py --admin
 
 # Start the server
@@ -35,9 +35,8 @@ Set the `MONITOREO_CONFIG` environment variable to point to a different config f
 
 | Command | Effect |
 |---|---|
-| `python scripts/generar_tokens.py --salas SALA-01` | New token for SALA-01 |
-| `python scripts/generar_tokens.py --salas SALA-01 SALA-02 SALA-03` | Batch generation |
-| `python scripts/generar_tokens.py --rotar SALA-01 --gracia-horas 24` | Rotate token, old token valid for 24 h |
+| `python scripts/generar_tokens.py --shared` | New shared agent token for all rooms |
+| `python scripts/generar_tokens.py --rotar-shared --gracia-horas 24` | Rotate shared token, old token valid for 24 h |
 | `python scripts/generar_tokens.py --admin` | New admin token, updates `config.yaml` |
 
 Plaintext tokens are shown **once** to stdout. Hashes are stored in `tokens.yaml`.
@@ -52,7 +51,7 @@ Receives a Parquet file from an agent.
 
 | Field | Where | Value |
 |---|---|---|
-| `X-Auth-Token` | Header | Room plaintext token |
+| `X-Auth-Token` | Header | Shared plaintext agent token |
 | `sala_codigo` | Form field | e.g. `SALA-01` |
 | `archivo` | File field | `.parquet` file, snappy compression |
 
@@ -80,9 +79,8 @@ Aggregated stats. Requires `X-Admin-Token` header.
 
 ### `GET /v1/rooms`
 
-Lists configured rooms (no hashes exposed). Requires `X-Admin-Token` header.
-
----
+Returns the room configuration mode. Rooms are dynamic: the server accepts any valid
+`sala_codigo` when the shared agent token is correct. Requires `X-Admin-Token` header.
 
 ## Inspecting the audit log
 
@@ -131,10 +129,10 @@ After installation:
 # Edit config
 sudo nano /etc/monitoreo-salas/config.yaml
 
-# Generate tokens
+# Generate shared agent token
 sudo -u monitoreo /opt/monitoreo-salas/.venv/bin/python \
     /opt/monitoreo-salas/scripts/generar_tokens.py \
-    --salas SALA-01 SALA-02 \
+    --shared \
     --tokens-file /etc/monitoreo-salas/tokens.yaml
 
 # Generate admin token

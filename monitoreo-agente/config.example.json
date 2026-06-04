@@ -1,4 +1,4 @@
-{
+﻿{
   "api_url": "http://servidor.universidad.edu:8080/v1/upload",
   "token": "TOKEN-DE-SALA",
   "sala_codigo": "SALA-01",
