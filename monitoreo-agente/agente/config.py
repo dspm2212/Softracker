@@ -1,4 +1,4 @@
-"""
+﻿"""
 Configuration loader and validator for the monitoring agent.
 
 Loads config.json from the project root or C:\\monitoreo\\config.json,
@@ -14,10 +14,11 @@ import json
 import os
 from pathlib import Path
 
-REQUIRED_KEYS: tuple[str, ...] = ("api_url", "token", "sala_codigo", "datos_dir")
+REQUIRED_KEYS: tuple[str, ...] = ("api_url", "sala_codigo", "datos_dir")
 
 DEFAULTS: dict[str, object] = {
     "log_dir": "C:\\monitoreo\\logs",
+    "token": "MONITOREO_SHARED_TOKEN_CHANGE_ME",
     "intervalo_captura_min": 10,
     "hora_envio": "21:45",
     "timeout_envio_seg": 60,

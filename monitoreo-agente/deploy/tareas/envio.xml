@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Task: MonitoreoEnvio
-  Runs agente_envio.py once daily at 21:45 to consolidate today's JSONL
+  Runs agente_envio.exe once daily at 21:45 to consolidate today's JSONL
   and upload all pending Parquet files to the API.
 
   Key behaviors:
     - Fixed daily trigger at 21:45.
     - StartWhenAvailable=false: if the PC was off at 21:45, the send is
-      skipped for that day (agente_retry.py handles orphan data at next login).
+      skipped for that day (agente_retry.exe handles orphan data at next login).
     - IgnoreNew: if a previous send is still running (very unlikely), skip.
     - ExecutionTimeLimit: 15 minutes — plenty for upload + cleanup.
-    - No console window (pythonw.exe).
+    - No console window (compiled with --noconsole).
 
-  Placeholder: __INSTALL_USER__ is replaced by instalar.ps1 with DOMAIN\estudiante.
-  Install path:  C:\monitoreo  (set by instalar.ps1)
+  Placeholders replaced by instalar.ps1:
+    __INSTALL_USER__  → DOMAIN\estudiante
+    __INSTALL_DIR__   → C:\monitoreo  (or custom InstallDir)
 -->
 <Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
 
@@ -28,7 +29,7 @@
       <!--
         Fire at 21:45 every day.
         StartWhenAvailable=false means a missed trigger (PC was off) is skipped.
-        agente_retry.py handles orphaned data at next session start.
+        agente_retry.exe handles orphaned data at next session start.
       -->
       <StartBoundary>2000-01-01T21:45:00</StartBoundary>
       <Enabled>true</Enabled>
@@ -41,7 +42,7 @@
   <Principals>
     <Principal id="Author">
       <!--
-        Task only runs when estudiante is the interactive user.
+        Task only runs when the student is the interactive user.
         instalar.ps1 replaces __INSTALL_USER__ with DOMAIN\estudiante.
         If admin logs in, this task does NOT fire (InteractiveToken check).
       -->
@@ -56,7 +57,6 @@
     <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
     <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
     <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
-    <!-- Do not wake the machine just to send data -->
     <WakeToRun>false</WakeToRun>
     <!-- Missed trigger is skipped; agente_retry recovers orphan data next login -->
     <StartWhenAvailable>false</StartWhenAvailable>
@@ -75,10 +75,8 @@
 
   <Actions Context="Author">
     <Exec>
-      <!-- pythonw.exe: no console window pops up during upload -->
-      <Command>C:\monitoreo\.venv\Scripts\pythonw.exe</Command>
-      <Arguments>C:\monitoreo\scripts\agente_envio.py</Arguments>
-      <WorkingDirectory>C:\monitoreo</WorkingDirectory>
+      <Command>__INSTALL_DIR__\agente_envio.exe</Command>
+      <WorkingDirectory>__INSTALL_DIR__</WorkingDirectory>
     </Exec>
   </Actions>
 

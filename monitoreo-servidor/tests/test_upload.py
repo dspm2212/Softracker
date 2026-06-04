@@ -5,12 +5,6 @@ Author: Daniel Perez
 
 from __future__ import annotations
 
-import io
-from pathlib import Path
-
-import pyarrow as pa
-import pyarrow.parquet as pq
-import pytest
 from fastapi.testclient import TestClient
 
 from tests.conftest import TEST_ADMIN_TOKEN, TEST_SALA, TEST_TOKEN
@@ -32,8 +26,6 @@ def _multipart(
     )
 
 
-# ── Happy path ────────────────────────────────────────────────────────────────
-
 def test_upload_ok_returns_201(client: TestClient, parquet_bytes: bytes) -> None:
     response = _multipart(client, TEST_TOKEN, TEST_SALA, parquet_bytes)
     assert response.status_code == 201
@@ -49,13 +41,10 @@ def test_upload_ok_response_schema(client: TestClient, parquet_bytes: bytes) -> 
 def test_upload_ok_file_written_to_disk(client: TestClient, parquet_bytes: bytes) -> None:
     response = _multipart(client, TEST_TOKEN, TEST_SALA, parquet_bytes)
     assert response.status_code == 201
-    # saved_as is relative to base_dir; file should exist
     saved_as = response.json()["saved_as"]
     config = client.app.state.config
     assert (config.storage.base_dir / saved_as).exists()
 
-
-# ── Auth failures ─────────────────────────────────────────────────────────────
 
 def test_upload_missing_token_returns_401(client: TestClient, parquet_bytes: bytes) -> None:
     response = _multipart(client, None, TEST_SALA, parquet_bytes)
@@ -69,22 +58,19 @@ def test_upload_wrong_token_returns_401(client: TestClient, parquet_bytes: bytes
     assert response.json()["detail"] == "invalid token"
 
 
-def test_upload_unknown_room_returns_401(client: TestClient, parquet_bytes: bytes) -> None:
-    response = _multipart(client, TEST_TOKEN, "SALA-99", parquet_bytes)
-    assert response.status_code == 401
-    # Must not reveal whether the room exists
-    assert response.json()["detail"] == "invalid token"
-
-
-def test_upload_token_from_other_sala_returns_401(
+def test_upload_new_room_with_shared_token_returns_201(
     client: TestClient, parquet_bytes: bytes
 ) -> None:
-    # Admin token is not a room token — should be rejected
+    response = _multipart(client, TEST_TOKEN, "SALA-99", parquet_bytes)
+    assert response.status_code == 201
+
+
+def test_upload_admin_token_returns_401(
+    client: TestClient, parquet_bytes: bytes
+) -> None:
     response = _multipart(client, TEST_ADMIN_TOKEN, TEST_SALA, parquet_bytes)
     assert response.status_code == 401
 
-
-# ── Input validation failures ─────────────────────────────────────────────────
 
 def test_upload_invalid_room_code_format_returns_400(
     client: TestClient, parquet_bytes: bytes
@@ -109,30 +95,39 @@ def test_upload_non_parquet_saved_to_rejected(client: TestClient) -> None:
 
 
 def test_upload_file_too_large_returns_413(client: TestClient) -> None:
-    # max_upload_mb=1 in test config → 1 MB + 1 byte triggers 413
     big = b"x" * (1 * 1024 * 1024 + 1)
     response = _multipart(client, TEST_TOKEN, TEST_SALA, big)
     assert response.status_code == 413
     assert "large" in response.json()["detail"]
 
 
-# ── Audit log ─────────────────────────────────────────────────────────────────
-
 def test_upload_ok_creates_audit_entry(client: TestClient, parquet_bytes: bytes) -> None:
     import json
+
     _multipart(client, TEST_TOKEN, TEST_SALA, parquet_bytes)
     config = client.app.state.config
     audit_file = config.storage.base_dir / config.storage.audit_log_file
     assert audit_file.exists()
-    events = [json.loads(l) for l in audit_file.read_text(encoding="utf-8").splitlines() if l]
+    events = [
+        json.loads(l)
+        for l in audit_file.read_text(encoding="utf-8").splitlines()
+        if l
+    ]
     assert any(e["result"] in ("ok", "ok_previous_token") for e in events)
 
 
-def test_upload_failure_creates_audit_entry(client: TestClient, parquet_bytes: bytes) -> None:
+def test_upload_failure_creates_audit_entry(
+    client: TestClient, parquet_bytes: bytes
+) -> None:
     import json
+
     _multipart(client, "bad-token", TEST_SALA, parquet_bytes)
     config = client.app.state.config
     audit_file = config.storage.base_dir / config.storage.audit_log_file
     assert audit_file.exists()
-    events = [json.loads(l) for l in audit_file.read_text(encoding="utf-8").splitlines() if l]
+    events = [
+        json.loads(l)
+        for l in audit_file.read_text(encoding="utf-8").splitlines()
+        if l
+    ]
     assert any(e["result"] == "invalid_token" for e in events)

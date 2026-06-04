@@ -1,11 +1,11 @@
-"""CLI tool for generating and rotating room authentication tokens.
+"""CLI tool for generating and rotating shared authentication tokens.
 
 Generates cryptographically random tokens, stores their SHA-256 hashes
 in tokens.yaml, and prints plaintext tokens once to the console.
 
 Usage:
-    python scripts/generar_tokens.py --salas SALA-01 SALA-02 SALA-03
-    python scripts/generar_tokens.py --rotar SALA-01 --gracia-horas 24
+    python scripts/generar_tokens.py --shared
+    python scripts/generar_tokens.py --rotar-shared --gracia-horas 24
     python scripts/generar_tokens.py --admin
 
 Author: Daniel Perez
@@ -53,47 +53,42 @@ def _save_yaml(data: dict, path: Path) -> None:
     )
 
 
-def cmd_salas(sala_codes: list[str], tokens_file: Path) -> None:
-    """Generate a fresh token for each room in sala_codes."""
+def cmd_shared(tokens_file: Path) -> None:
+    """Generate a fresh shared token for every room."""
     data = _load_yaml(tokens_file)
-    data.setdefault("rooms", {})
-
-    generated: list[tuple[str, str]] = []
-    for code in sala_codes:
-        token = _generate_token()
-        data["rooms"][code] = {
-            "active_hash": hash_token(token),
-            "active_since": _now_utc_str(),
-            "previous_hash": None,
-            "previous_until": None,
-        }
-        generated.append((code, token))
+    token = _generate_token()
+    data["shared_token"] = {
+        "active_hash": hash_token(token),
+        "active_since": _now_utc_str(),
+        "previous_hash": None,
+        "previous_until": None,
+    }
+    data.pop("rooms", None)
 
     _save_yaml(data, tokens_file)
 
-    print("\n=== NEW ROOM TOKENS ===")
-    print("Store these plaintext tokens securely — they will NOT be shown again.\n")
-    for code, token in generated:
-        print(f"  {code:20s}  {token}")
+    print("\n=== NEW SHARED AGENT TOKEN ===")
+    print("Store this plaintext token securely - it will NOT be shown again.\n")
+    print(f"  Shared token: {token}")
     print(f"\nHashes written to: {tokens_file}")
 
 
-def cmd_rotar(sala_code: str, gracia_horas: int, tokens_file: Path) -> None:
-    """Rotate the token for an existing room, keeping the old one valid temporarily."""
+def cmd_rotar_shared(gracia_horas: int, tokens_file: Path) -> None:
+    """Rotate the shared token, keeping the old one valid temporarily."""
     data = _load_yaml(tokens_file)
-    rooms: dict = data.get("rooms", {})
+    shared_token: dict | None = data.get("shared_token")
 
-    if sala_code not in rooms:
-        print(f"ERROR: Room '{sala_code}' not found in {tokens_file}", file=sys.stderr)
+    if not shared_token:
+        print(f"ERROR: shared_token not found in {tokens_file}", file=sys.stderr)
         sys.exit(1)
 
-    old_active_hash = rooms[sala_code].get("active_hash")
+    old_active_hash = shared_token.get("active_hash")
     new_token = _generate_token()
     grace_until = (
         datetime.now(timezone.utc) + timedelta(hours=gracia_horas)
     ).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    data["rooms"][sala_code] = {
+    data["shared_token"] = {
         "active_hash": hash_token(new_token),
         "active_since": _now_utc_str(),
         "previous_hash": old_active_hash,
@@ -102,9 +97,9 @@ def cmd_rotar(sala_code: str, gracia_horas: int, tokens_file: Path) -> None:
 
     _save_yaml(data, tokens_file)
 
-    print(f"\n=== TOKEN ROTATION: {sala_code} ===")
-    print("Store this plaintext token securely — it will NOT be shown again.\n")
-    print(f"  New token : {new_token}")
+    print("\n=== SHARED TOKEN ROTATION ===")
+    print("Store this plaintext token securely - it will NOT be shown again.\n")
+    print(f"  New shared token : {new_token}")
     print(f"  Old token valid until: {grace_until}  (grace: {gracia_horas}h)")
     print(f"\nHash written to: {tokens_file}")
 
@@ -128,7 +123,7 @@ def cmd_admin(tokens_file: Path, config_file: Path) -> None:
         config_file.write_text("\n".join(new_lines) + "\n", encoding="utf-8")
 
     print("\n=== NEW ADMIN TOKEN ===")
-    print("Store this plaintext token securely — it will NOT be shown again.\n")
+    print("Store this plaintext token securely - it will NOT be shown again.\n")
     print(f"  Admin token: {token}")
 
     if updated_config:
@@ -145,15 +140,14 @@ def main() -> None:
     )
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
-        "--salas",
-        nargs="+",
-        metavar="SALA_CODE",
-        help="Generate a new token for one or more rooms (e.g. --salas SALA-01 SALA-02).",
+        "--shared",
+        action="store_true",
+        help="Generate a new shared token for all rooms.",
     )
     group.add_argument(
-        "--rotar",
-        metavar="SALA_CODE",
-        help="Rotate the token for an existing room.",
+        "--rotar-shared",
+        action="store_true",
+        help="Rotate the shared token.",
     )
     group.add_argument(
         "--admin",
@@ -184,10 +178,10 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.salas:
-        cmd_salas(args.salas, args.tokens_file)
-    elif args.rotar:
-        cmd_rotar(args.rotar, args.gracia_horas, args.tokens_file)
+    if args.shared:
+        cmd_shared(args.tokens_file)
+    elif args.rotar_shared:
+        cmd_rotar_shared(args.gracia_horas, args.tokens_file)
     elif args.admin:
         cmd_admin(args.tokens_file, args.config_file)
 

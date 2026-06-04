@@ -1,0 +1,14 @@
+# Token compartido para todos los agentes de la universidad.
+# Copiar este archivo como tokens.yaml y reemplazar el hash.
+#
+# Generar hash del token:
+#   python -c "import hashlib; print(hashlib.sha256(b'TU_TOKEN_AQUI').hexdigest())"
+#
+# El token en texto plano va en config.json del agente (campo "token").
+# Aqui solo se almacena el hash SHA-256, nunca el token en claro.
+
+shared_token:
+  active_hash: "REEMPLAZAR_CON_HASH_SHA256_DEL_TOKEN"
+  active_since: "2026-01-01T00:00:00Z"
+  previous_hash: null
+  previous_until: null
