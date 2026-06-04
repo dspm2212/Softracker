@@ -11,7 +11,7 @@ services:
     volumes:
       - ./config/servidor.yaml:/config/servidor.yaml:ro
       - ./config/tokens.yaml:/config/tokens.yaml:ro
-      - monitoreo_data:/data
+      - ./data:/data
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c",
@@ -32,12 +32,11 @@ services:
     volumes:
       - ./config/report.yaml:/config/report.yaml:ro
       - ./config/tokens.yaml:/config/tokens.yaml:ro
-      - monitoreo_data:/data:ro
+      - ./data:/data:ro
     depends_on:
       servidor:
         condition: service_healthy
     restart: unless-stopped
 
-volumes:
-  monitoreo_data:
-    driver: local
+# data/ es un bind mount creado en el host antes de levantar.
+# Ver instrucciones en el README o ejecutar: mkdir -p data/log data/parquet data/rejected
