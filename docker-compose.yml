@@ -32,7 +32,7 @@ services:
     volumes:
       - ./config/report.yaml:/config/report.yaml:ro
       - ./config/tokens.yaml:/config/tokens.yaml:ro
-      - ./data:/data:ro
+      - ./data:/data
     depends_on:
       servidor:
         condition: service_healthy
