@@ -7,7 +7,7 @@
     - Fires immediately on login (no delay): at startup we want to catch up
       on missed sends from previous sessions as quickly as possible.
     - No repetition: runs exactly once per login.
-    - Covers the case where the PC was off at 21:45 (agente_envio missed):
+    - Covers the case where the PC was off at 14:00 (agente_envio missed):
         1. Finds orphan JSONLs in raw/ (no matching Parquet anywhere).
         2. Consolidates each orphan → pendientes/.
         3. Sends all pending Parquets to the API.

@@ -143,7 +143,7 @@ $configObj = @{
     datos_dir             = ($InstallDir + "\data") -replace "\\", "/"
     log_dir               = ($InstallDir + "\logs") -replace "\\", "/"
     intervalo_captura_min = 10
-    hora_envio            = "21:45"
+    hora_envio            = "14:00"
     timeout_envio_seg     = 60
     reintentos_envio      = 3
     dias_retencion_local  = 7
@@ -207,6 +207,6 @@ Write-Host "  API URL      : $ApiUrl" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Scheduled tasks registered:" -ForegroundColor Green
 Write-Host "    \Monitoreo\Captura   — every 10 min while estudiante is logged in" -ForegroundColor Green
-Write-Host "    \Monitoreo\Envio     — daily at 21:45" -ForegroundColor Green
+Write-Host "    \Monitoreo\Envio     — daily at 14:00" -ForegroundColor Green
 Write-Host "    \Monitoreo\Arranque  — once at login (orphan retry)" -ForegroundColor Green
 Write-Host "============================================================" -ForegroundColor Green

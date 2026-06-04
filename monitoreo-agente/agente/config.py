@@ -19,7 +19,7 @@ REQUIRED_KEYS: tuple[str, ...] = ("api_url", "token", "sala_codigo", "datos_dir"
 DEFAULTS: dict[str, object] = {
     "log_dir": "C:\\monitoreo\\logs",
     "intervalo_captura_min": 10,
-    "hora_envio": "21:45",
+    "hora_envio": "14:00",
     "timeout_envio_seg": 60,
     "reintentos_envio": 3,
     "dias_retencion_local": 7,
