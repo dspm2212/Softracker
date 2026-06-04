@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   Task: MonitoreoEnvio
-  Runs agente_envio.exe once daily at 21:45 to consolidate today's JSONL
+  Runs agente_envio.exe once daily at 14:00 to consolidate today's JSONL
   and upload all pending Parquet files to the API.
 
   Key behaviors:
-    - Fixed daily trigger at 21:45.
-    - StartWhenAvailable=false: if the PC was off at 21:45, the send is
+    - Fixed daily trigger at 14:00.
+    - StartWhenAvailable=false: if the PC was off at 14:00, the send is
       skipped for that day (agente_retry.exe handles orphan data at next login).
     - IgnoreNew: if a previous send is still running (very unlikely), skip.
     - ExecutionTimeLimit: 15 minutes — plenty for upload + cleanup.
-    - No console window (compiled with --noconsole).
+    - No console window (compiled with noconsole flag).
 
   Placeholders replaced by instalar.ps1:
     __INSTALL_USER__  → DOMAIN\estudiante
@@ -31,7 +31,7 @@
         StartWhenAvailable=false means a missed trigger (PC was off) is skipped.
         agente_retry.exe handles orphaned data at next session start.
       -->
-      <StartBoundary>2000-01-01T14:00:00</StartBoundary>
+      <StartBoundary>2000-01-01T16:30:00</StartBoundary>
       <Enabled>true</Enabled>
       <ScheduleByDay>
         <DaysInterval>1</DaysInterval>

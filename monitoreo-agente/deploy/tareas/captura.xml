@@ -7,7 +7,7 @@
     - Fires 5 minutes after login (delay avoids capturing Windows autostart noise).
     - Repeats every 10 minutes indefinitely until the session ends.
     - IgnoreNew: if a capture is still running when the next trigger fires, skip it.
-    - No console window (compiled with --noconsole).
+    - No console window (compiled with noconsole flag).
     - Execution time limit: 3 minutes (a capture takes < 5 seconds normally).
 
   Placeholders replaced by instalar.ps1:

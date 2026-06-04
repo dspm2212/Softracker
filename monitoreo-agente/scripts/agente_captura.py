@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from agente.almacenamiento import guardar_muestra
 from agente.captura import construir_muestra
 from agente.config import cargar_config
-from agente.logger import configurar_logger
+from agente.logger import configurar_logger, log_error_inicio
 
 
 def main() -> int:
@@ -27,7 +27,7 @@ def main() -> int:
     try:
         cfg = cargar_config()
     except (FileNotFoundError, ValueError) as exc:
-        print(f"ERROR loading config: {exc}", file=sys.stderr)
+        log_error_inicio(f"ERROR loading config: {exc}")
         return 1
 
     log = configurar_logger("captura", Path(cfg["log_dir"]))

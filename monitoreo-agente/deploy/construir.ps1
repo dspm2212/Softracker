@@ -110,8 +110,13 @@ $Scripts = @(
 foreach ($entry in $Scripts) {
     Write-Step "Compiling $($entry.Name).exe"
     $PyiArgs = $CommonFlags + @("--name", $entry.Name, (Join-Path $Root $entry.Script))
+    # PyInstaller writes INFO lines to stderr; temporarily allow non-terminating errors
+    # so PowerShell 5.1 doesn't abort on NativeCommandError before we check $LASTEXITCODE.
+    $ErrorActionPreference = "Continue"
     & $VenvPython -m PyInstaller @PyiArgs
-    if ($LASTEXITCODE -ne 0) { Write-Fail "PyInstaller failed for $($entry.Name)." }
+    $pyiExit = $LASTEXITCODE
+    $ErrorActionPreference = "Stop"
+    if ($pyiExit -ne 0) { Write-Fail "PyInstaller failed for $($entry.Name)." }
     Write-Ok "$BinOut\$($entry.Name).exe"
 }
 

@@ -228,32 +228,34 @@
   ('win32\\win32evtlog.pyd',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\win32\\win32evtlog.pyd',
    'EXTENSION'),
-  ('api-ms-win-crt-time-l1-1-0.dll',
+  ('api-ms-win-crt-locale-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-time-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-locale-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-stdio-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-stdio-l1-1-0.dll',
+  ('VCRUNTIME140.dll',
+   'C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140.dll',
    'BINARY'),
   ('api-ms-win-crt-convert-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-convert-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-environment-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-environment-l1-1-0.dll',
+  ('VCRUNTIME140_1.dll',
+   'C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140_1.dll',
    'BINARY'),
-  ('api-ms-win-crt-utility-l1-1-0.dll',
+  ('api-ms-win-crt-math-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-utility-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-math-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-stdio-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-stdio-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-heap-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-heap-l1-1-0.dll',
    'BINARY'),
   ('pyarrow.libs\\msvcp140-f22b3317cfb3fad7db3a18f8f234f32b.dll',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\pyarrow.libs\\msvcp140-f22b3317cfb3fad7db3a18f8f234f32b.dll',
-   'BINARY'),
-  ('api-ms-win-crt-locale-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-locale-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-runtime-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
@@ -267,22 +269,20 @@
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-filesystem-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-crt-math-l1-1-0.dll',
+  ('api-ms-win-crt-environment-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-math-l1-1-0.dll',
-   'BINARY'),
-  ('VCRUNTIME140.dll',
-   'C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-environment-l1-1-0.dll',
    'BINARY'),
   ('pyarrow.libs\\msvcp140_atomic_wait-a67379821634a4f3a32730b57a436c71.dll',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\pyarrow.libs\\msvcp140_atomic_wait-a67379821634a4f3a32730b57a436c71.dll',
    'BINARY'),
-  ('VCRUNTIME140_1.dll',
-   'C:\\Users\\HP\\AppData\\Local\\Programs\\Python\\Python313\\VCRUNTIME140_1.dll',
-   'BINARY'),
-  ('api-ms-win-crt-heap-l1-1-0.dll',
+  ('api-ms-win-crt-time-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-heap-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-time-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-crt-utility-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-crt-utility-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-crt-process-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
@@ -308,65 +308,49 @@
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\ucrtbase.dll',
    'BINARY'),
-  ('api-ms-win-core-file-l1-1-0.dll',
+  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-processenvironment-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processenvironment-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-errorhandling-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-errorhandling-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-sysinfo-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-sysinfo-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-timezone-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-timezone-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-synch-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-synch-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-fibers-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-fibers-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-libraryloader-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-libraryloader-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-rtlsupport-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-core-datetime-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-datetime-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-processthreads-l1-1-0.dll',
+  ('api-ms-win-core-handle-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-handle-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-namedpipe-l1-1-0.dll',
+  ('api-ms-win-core-localization-l1-2-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-namedpipe-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-localization-l1-2-0.dll',
    'BINARY'),
-  ('api-ms-win-core-interlocked-l1-1-0.dll',
+  ('api-ms-win-core-timezone-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-timezone-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-file-l2-1-0.dll',
+  ('api-ms-win-core-string-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l2-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-string-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-core-util-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-util-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-sysinfo-l1-2-0.dll',
+  ('api-ms-win-core-debug-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-sysinfo-l1-2-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-debug-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processenvironment-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processenvironment-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-1.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-1.dll',
+   'BINARY'),
+  ('api-ms-win-core-heap-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-heap-l1-1-0.dll',
    'BINARY'),
   ('api-ms-win-core-console-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
@@ -376,53 +360,69 @@
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-kernel32-legacy-l1-1-1.dll',
    'BINARY'),
-  ('api-ms-win-core-synch-l1-2-0.dll',
+  ('api-ms-win-core-sysinfo-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-synch-l1-2-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-sysinfo-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-string-l1-1-0.dll',
+  ('api-ms-win-core-errorhandling-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-string-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-errorhandling-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-memory-l1-1-0.dll',
+  ('api-ms-win-core-sysinfo-l1-2-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-memory-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-rtlsupport-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-rtlsupport-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-file-l1-2-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l1-2-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-localization-l1-2-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-localization-l1-2-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-profile-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-profile-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-handle-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-handle-l1-1-0.dll',
-   'BINARY'),
-  ('api-ms-win-core-heap-l1-1-0.dll',
-   'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-heap-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-sysinfo-l1-2-0.dll',
    'BINARY'),
   ('api-ms-win-core-fibers-l1-1-1.dll',
    'C:\\Program Files\\Eclipse '
    'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-fibers-l1-1-1.dll',
    'BINARY'),
-  ('api-ms-win-core-processthreads-l1-1-1.dll',
+  ('api-ms-win-core-namedpipe-l1-1-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-1.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-namedpipe-l1-1-0.dll',
    'BINARY'),
-  ('api-ms-win-core-debug-l1-1-0.dll',
+  ('api-ms-win-core-file-l1-2-0.dll',
    'C:\\Program Files\\Eclipse '
-   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-debug-l1-1-0.dll',
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-memory-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-memory-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-processthreads-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-processthreads-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-synch-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-file-l2-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-file-l2-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-fibers-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-fibers-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-libraryloader-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-libraryloader-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-synch-l1-2-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-synch-l1-2-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-interlocked-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-interlocked-l1-1-0.dll',
+   'BINARY'),
+  ('api-ms-win-core-profile-l1-1-0.dll',
+   'C:\\Program Files\\Eclipse '
+   'Adoptium\\jdk-25.0.3.9-hotspot\\bin\\api-ms-win-core-profile-l1-1-0.dll',
    'BINARY'),
   ('pyarrow-24.0.0.dist-info\\DELVEWHEEL',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\pyarrow-24.0.0.dist-info\\DELVEWHEEL',
@@ -2614,26 +2614,26 @@
   ('pyarrow\\vendored\\version.py',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\pyarrow\\vendored\\version.py',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
-   'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
-   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
    'DATA'),
   ('setuptools\\_vendor\\jaraco\\text\\Lorem ipsum.txt',
    'C:\\Users\\HP\\Documents\\GitHub\\Softracker\\monitoreo-agente\\.venv-build\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '

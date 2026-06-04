@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from agente.almacenamiento import consolidar_a_parquet
 from agente.config import cargar_config
 from agente.envio import procesar_pendientes
-from agente.logger import configurar_logger
+from agente.logger import configurar_logger, log_error_inicio
 
 
 def _find_orphan_dates(datos_dir: Path) -> list[date]:
@@ -72,7 +72,7 @@ def main() -> int:
     try:
         cfg = cargar_config()
     except (FileNotFoundError, ValueError) as exc:
-        print(f"ERROR loading config: {exc}", file=sys.stderr)
+        log_error_inicio(f"ERROR loading config: {exc}")
         return 1
 
     datos_dir = Path(cfg["datos_dir"])

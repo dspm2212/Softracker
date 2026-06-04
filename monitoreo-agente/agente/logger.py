@@ -18,6 +18,24 @@ _BACKUP_COUNT: int = 3
 _FORMAT: str = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 
 
+def log_error_inicio(msg: str) -> None:
+    """Write a fatal startup message when no logger exists yet.
+
+    Used before configurar_logger can be called (e.g. config load failure).
+    Falls back to a fixed file when sys.stderr is None (--noconsole builds).
+    """
+    if sys.stderr is not None:
+        print(msg, file=sys.stderr)
+    else:
+        fallback = Path("C:/monitoreo/logs/startup_error.log")
+        try:
+            fallback.parent.mkdir(parents=True, exist_ok=True)
+            with fallback.open("a", encoding="utf-8") as fh:
+                fh.write(msg + "\n")
+        except OSError:
+            pass
+
+
 def configurar_logger(nombre: str, log_dir: Path) -> logging.Logger:
     """Create a rotating file logger, optionally mirroring to stdout.
 
@@ -39,9 +57,18 @@ def configurar_logger(nombre: str, log_dir: Path) -> logging.Logger:
     logger.setLevel(level)
 
     if not logger.handlers:
-        logger.addHandler(_build_file_handler(log_dir / f"{nombre}.log", level))
-        if sys.stdout.isatty():
+        file_handler = _build_file_handler(log_dir / f"{nombre}.log", level)
+        logger.addHandler(file_handler)
+        if sys.stdout is not None and sys.stdout.isatty():
             logger.addHandler(_build_stdout_handler(level))
+
+        # Route agente.* module loggers (agente.envio, agente.almacenamiento, etc.)
+        # into the same file. Each agent runs as its own process so sharing the
+        # handler across the namespace is safe.
+        agente_ns = logging.getLogger("agente")
+        agente_ns.setLevel(level)
+        if not agente_ns.handlers:
+            agente_ns.addHandler(file_handler)
 
     return logger
 

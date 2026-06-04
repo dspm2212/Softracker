@@ -12,7 +12,7 @@
         2. Consolidates each orphan → pendientes/.
         3. Sends all pending Parquets to the API.
     - IgnoreNew: prevents double-run if the user logs off and on quickly.
-    - No console window (compiled with --noconsole).
+    - No console window (compiled with noconsole flag).
     - ExecutionTimeLimit: 15 minutes — enough to consolidate + upload
       several days of backlogged data over a slow connection.
 
