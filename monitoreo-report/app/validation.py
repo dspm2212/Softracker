@@ -16,7 +16,7 @@ import pyarrow.parquet as pq
 
 logger = logging.getLogger(__name__)
 
-_ROOM_CODE_RE = re.compile(r"^[A-Z0-9\-]{3,20}$")
+_ROOM_CODE_RE = re.compile(r"^[A-Z0-9\-]{3,30}$")
 
 
 def validate_parquet(file_bytes: bytes) -> tuple[bool, str | None]:
