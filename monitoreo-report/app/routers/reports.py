@@ -47,20 +47,32 @@ def dashboard(
     fecha_inicio: date | None = Query(None),
     fecha_fin: date | None = Query(None),
     sala_codigo: str | None = Query(None),
+    filtrado: str | None = Query(None),
     config: AppConfig = Depends(get_config),
 ) -> HTMLResponse:
     """Render the admin dashboard. Redirects to login if not authenticated."""
     if not _is_authenticated(request, config):
         return HTMLResponse(_login_html(), status_code=200)
 
-    # Default to the last N days when the user opens the dashboard cold.
-    if fecha_inicio is None and fecha_fin is None:
+    error_msg: str | None = None
+
+    if filtrado == "1" and (fecha_inicio is None or fecha_fin is None):
+        error_msg = "Debes ingresar ambas fechas para filtrar." if not fecha_inicio and not fecha_fin \
+            else "Debes ingresar la fecha de inicio." if not fecha_inicio \
+            else "Debes ingresar la fecha de fin."
+
+    if fecha_inicio is None or fecha_fin is None:
         fecha_fin = date.today()
         fecha_inicio = fecha_fin - timedelta(days=_DEFAULT_DAYS - 1)
 
-    filters = _build_filters(fecha_inicio, fecha_fin, sala_codigo)
-    report = _load_report(config, filters)
-    return HTMLResponse(_dashboard_html(report, filters))
+    try:
+        filters = _build_filters(fecha_inicio, fecha_fin, sala_codigo)
+        report = _load_report(config, filters)
+    except HTTPException as exc:
+        filters = _build_filters(fecha_inicio, fecha_fin, None)
+        report = _load_report(config, filters)
+
+    return HTMLResponse(_dashboard_html(report, filters, error=error_msg))
 
 
 @router.post("/v1/dashboard/login")
@@ -233,7 +245,7 @@ def _login_html(error: str | None = None) -> str:
 </html>"""
 
 
-def _dashboard_html(report: dict, filters: ReportFilters) -> str:
+def _dashboard_html(report: dict, filters: ReportFilters, error: str | None = None) -> str:
     summary = report["summary"]
     query = _query_string(filters)
 
@@ -251,6 +263,13 @@ def _dashboard_html(report: dict, filters: ReportFilters) -> str:
 
     primera = html.escape(str(summary.get("primera_captura") or "-"))
     ultima  = html.escape(str(summary.get("ultima_captura")  or "-"))
+    toast_block = (
+        f'<div class="toast" id="toast">'
+        f'<span>⚠ {html.escape(error)}</span>'
+        f'<button onclick="document.getElementById(\'toast\').style.display=\'none\'">✕</button>'
+        f'</div>'
+        f'<script>setTimeout(function(){{var t=document.getElementById("toast");if(t)t.style.display="none";}},2000);</script>'
+    ) if error else ""
 
     return f"""<!doctype html>
 <html lang="es">
@@ -300,9 +319,18 @@ def _dashboard_html(report: dict, filters: ReportFilters) -> str:
     tr:hover td {{ background: #f8fafc; }}
     @media(max-width:700px) {{ form.filters {{ flex-direction: column; }}
       .metrics {{ grid-template-columns: 1fr 1fr; }} main {{ padding: 14px; }} }}
+    /* Toast */
+    .toast {{ position: fixed; bottom: 24px; right: 24px; z-index: 999;
+              display: flex; align-items: center; gap: 12px;
+              background: #b91c1c; color: #fff; font-size: 14px; font-weight: 600;
+              padding: 14px 18px; border-radius: 8px;
+              box-shadow: 0 4px 16px rgba(0,0,0,.25); max-width: 400px; }}
+    .toast button {{ background: none; border: none; color: #fff; font-size: 18px;
+                     cursor: pointer; line-height: 1; padding: 0; flex-shrink: 0; }}
   </style>
 </head>
 <body>
+  {toast_block}
   <header>
     <h1>Monitoreo Salas</h1>
     <form method="post" action="/v1/dashboard/logout">
@@ -311,6 +339,7 @@ def _dashboard_html(report: dict, filters: ReportFilters) -> str:
   </header>
   <main>
     <form class="filters" method="get" action="/v1/dashboard">
+      <input type="hidden" name="filtrado" value="1">
       <div class="filter-group">
         <label for="fecha_inicio">Desde</label>
         <input id="fecha_inicio" name="fecha_inicio" type="date" value="{filter_start}">

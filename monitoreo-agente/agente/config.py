@@ -20,7 +20,7 @@ DEFAULTS: dict[str, object] = {
     "log_dir": "C:\\monitoreo\\logs",
     "token": "MONITOREO_SHARED_TOKEN_CHANGE_ME",
     "intervalo_captura_min": 10,
-    "hora_envio": "16:30",
+    "hora_envio": "21:45",
     "timeout_envio_seg": 60,
     "reintentos_envio": 3,
     "dias_retencion_local": 7,

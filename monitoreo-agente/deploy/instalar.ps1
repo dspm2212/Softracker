@@ -43,7 +43,7 @@ param(
     [string]$Token       = "MONITOREO_SHARED_TOKEN_CHANGE_ME"
 )
 
-if (-not $StudentUser) { $StudentUser = $env:USERNAME }
+if (-not $StudentUser) { $StudentUser = "Estudiantes" }
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
@@ -128,7 +128,7 @@ $configObj = @{
     datos_dir             = ($InstallDir + "\data") -replace "\\", "/"
     log_dir               = ($InstallDir + "\logs") -replace "\\", "/"
     intervalo_captura_min = 10
-    hora_envio            = "16:30"
+    hora_envio            = "21:45"
     timeout_envio_seg     = 60
     reintentos_envio      = 3
     dias_retencion_local  = 7
