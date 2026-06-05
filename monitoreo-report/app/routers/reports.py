@@ -69,6 +69,7 @@ def dashboard(
         filters = _build_filters(fecha_inicio, fecha_fin, sala_codigo)
         report = _load_report(config, filters)
     except HTTPException as exc:
+        error_msg = exc.detail
         filters = _build_filters(fecha_inicio, fecha_fin, None)
         report = _load_report(config, filters)
 
