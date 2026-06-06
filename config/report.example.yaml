@@ -17,6 +17,10 @@ credentials:
   #   python3 -c "import hashlib; print(hashlib.sha256(b'TU_CONTRASENA').hexdigest())"
   password_hash: "REEMPLAZAR_CON_HASH_SHA256_DE_LA_CONTRASENA"
 
+# Zona horaria para mostrar las horas en el dashboard y Excel.
+# Ejemplos: "America/Bogota", "America/Lima", "America/Mexico_City", "Europe/Madrid"
+display_timezone: "America/Bogota"
+
 logging:
   level: "INFO"
   file: "/data/log/report.log"

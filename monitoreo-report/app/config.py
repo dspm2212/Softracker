@@ -73,6 +73,9 @@ class AppConfig(BaseModel):
     auth: AuthConfig = AuthConfig()
     credentials: CredentialsConfig
     logging: LoggingConfig
+    # IANA timezone name for displaying timestamps (e.g. "America/Bogota", "America/Lima").
+    # Defaults to UTC if not set.
+    display_timezone: str = "UTC"
 
 
 def load_config(path: Path | None = None) -> AppConfig:

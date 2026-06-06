@@ -11,10 +11,11 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from io import BytesIO
 from pathlib import Path
 from typing import Any
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import pyarrow.parquet as pq
 from openpyxl import Workbook
@@ -46,6 +47,24 @@ class ReportFilters:
     fecha_inicio: date | None = None
     fecha_fin: date | None = None
     sala_codigo: str | None = None
+    display_tz: str = "UTC"
+
+
+def _get_tz(tz_name: str):
+    """Return a ZoneInfo object, falling back to UTC on invalid names."""
+    try:
+        return ZoneInfo(tz_name)
+    except (ZoneInfoNotFoundError, KeyError):
+        return timezone.utc
+
+
+def _to_local(dt: datetime | None, tz) -> datetime | None:
+    """Convert a UTC-aware datetime to the display timezone."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(tz)
 
 
 def load_monitoring_rows(
@@ -60,6 +79,7 @@ def load_monitoring_rows(
         return []
 
     rows: list[dict[str, Any]] = []
+    tz = _get_tz(filters.display_tz)
     for path in sorted(root.rglob("*.parquet")):
         room_code = _room_code_from_filename(path)
         if filters.sala_codigo and room_code != filters.sala_codigo:
@@ -70,6 +90,7 @@ def load_monitoring_rows(
         except Exception:
             continue
 
+
         for row in table.to_pylist():
             ts = _coerce_datetime(row.get("timestamp_utc"))
             if not _date_in_range(ts, filters):
@@ -77,7 +98,7 @@ def load_monitoring_rows(
 
             enriched = {column: row.get(column) for column in DETAIL_COLUMNS}
             enriched["sala_codigo"] = room_code
-            enriched["timestamp_utc"] = ts or row.get("timestamp_utc")
+            enriched["timestamp_utc"] = _to_local(ts, tz) or row.get("timestamp_utc")
             enriched["archivo_origen"] = str(path.relative_to(base_dir))
             rows.append(enriched)
 

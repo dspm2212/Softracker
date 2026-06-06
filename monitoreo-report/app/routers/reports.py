@@ -181,10 +181,16 @@ def _require_auth_flexible(
 
 
 def _load_report(config: AppConfig, filters: ReportFilters) -> dict:
+    filters_with_tz = ReportFilters(
+        fecha_inicio=filters.fecha_inicio,
+        fecha_fin=filters.fecha_fin,
+        sala_codigo=filters.sala_codigo,
+        display_tz=config.display_timezone,
+    )
     rows = load_monitoring_rows(
         config.storage.base_dir,
         config.storage.parquet_subdir,
-        filters,
+        filters_with_tz,
     )
     return build_report(rows)
 
